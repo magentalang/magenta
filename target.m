@@ -4,13 +4,14 @@ namespace main
 use tty
 use err
 use math
+use loop
 use arrays
 use myUtility // eg. some other namespace in the project folder
 // can be written in one neat line
-use tty math arrays myUtility
+use tty err math loop arrays myUtility
 
 // assignment
-// num is set to 5, then 55
+// calculate 5, assign it to a new variable called num, then calculate 55 (num * 11) and assign that to num
 5 -> var num; num * 11 -> num
 // piping
 // calculates 58, which turns into "58" via int to ascii, and is written to console. num remains 55
@@ -19,9 +20,10 @@ num + 3 | math.itoa | tty.writeln
 // if it does take an array argument but you want to pass additional arguments, you must encapsulate that array in another array
 [3, 2] | math.pow // 3^2 = 9
 [[1, 2], [3, 4]] | arrays.concat // [1, 2, 3, 4]
-// piping a value into a function that has arguments will cause the piped value(s) to be passed at the end of the function
-[1, 0] | arrays.push([4, 3, 2]) // [4, 3, 2, 1, 0] typeof int[]
-[[1, 0], [-1, -2]] | arrays.push([[4], [3], [2]]) // [[4], [3], [2], [1, 0], [-1, -2]] typeof int[][]
+// piping a value into a function that has arguments will allow you to pass the arguments via the $
+tty.readln() | math.atoi | math.pow($, 3) // puts user input to power of three
+[1, 0] | arrays.push([4, 3, 2], $1, $2) // [4, 3, 2, 1, 0] typeof int[]
+[[1, 0], [-1, -2]] | arrays.push([[4], [3], [2]], $) // [[4], [3], [2], [1, 0], [-1, -2]] typeof int[][]
 
 // one line conditional
 potentiallyReturnsDefault() -> var result == default ?? tty.writeln("is default")
@@ -30,12 +32,14 @@ potentiallyReturnsDefault() -> var result == default ?? tty.writeln("is default"
 // the result of the expression behind the |> is piped into each expression before each :
 // if one such expression is true,
 getInput("password") |>
-"good"  : login(); stop 0
+"good"  : login(); return 0
 "short" : tty.writeln("too short")
 else    : tty.writeln("otherwise invalid")
 
 // the `return` statement stops the currently running function
-// the `stop` statement breaks the current expression (be it a switch, a loop, top level of a function, etc)
+// the `break` statement breaks the current expression (be it a switch, a loop, top level of a function, etc)
+// the `continue` statement breaks the current expression and goes back to the top of the block
+// all of these can take a ""return" value"
 return 1
 
 // enum EnumName {val1, val2, etc} defaultIndex
@@ -58,11 +62,11 @@ GetInputResult getInput(expected string, input string?) {
 	tty.readln() -> var input
 
 	input |>
-	== expected         : stop "good"
-	len < len(expected) : stop "short"
-	len > len(expected) : stop "long"
+	== expected         : break "good"
+	len < len(expected) : break "short"
+	len > len(expected) : break "long"
 
-	// ending without an `return`/`stop`/`continue` is equivalent to `return default`
+	// ending without an `return`/`break`/`continue` is equivalent to `return default`
 	// if last calculate expression is same as function's return type, return that instead of default
 }
 
@@ -110,6 +114,28 @@ int Guy.setAge(newAge int) {
 }
 // usage
 new Guy(name "lisa", age 27, awesome true) -> var lisa
-lisa.setAge(29) | - lisa.age // 2
+lisa.setAge(29) - lisa.age // 2
 lisa.awesome // true
 lisa.gay // false (default value of type bool)
+
+// loops
+// when there are brackets, magenta uses C style loops
+for (0 -> var i; i < 10; i + 1 -> i) { ... }
+// when there are no brackets, magenta uses Iterators
+for returnsAnIterator() { ... }
+// magenta generates an iterator and uses your custom variable name for the `in` keyword
+for item in myArray { item; ... }
+for item, index in myArray { myArray[index] == item... }
+for key in myDict { dictionary[key]; ... }
+for key, item in myDict { dictionary[key] == item; ... }
+// loop library examples for
+for loop.to(10) // equiv to for (0 -> var i; i < 10; i + 1 -> i)
+for loop.from(10) // equiv to for (10 -> var i; i > 0; i - 1 -> i)
+for loop.between(10, 1) // equiv to for (10 -> var i; i > 1; i - 1 -> i)
+for loop.between(6, 15, 3) // equiv to for (0 -> var i; i < 10; i + 1 -> i)
+for loop.between(16, 8, 2) // equiv to for (0 -> var i; i < 10; i + 1 -> i)
+// each one of these returns an iterator like
+return new Iterator(
+	a -> var i,
+	a ♢ b,
+	i ± step -> i)
