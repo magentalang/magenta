@@ -149,7 +149,7 @@ for item in myArray { item; ... }
 for item, index in myArray { myArray[index] == item... }
 for key in myDict { dictionary[key]; ... }
 for key, item in myDict { dictionary[key] == item; ... }
-// loop library examples for
+// loop library examples
 for loop.to(10) // equiv to for (0 -> var i; i < 10; i + 1 -> i)
 for loop.from(10) // equiv to for (10 -> var i; i > 0; i - 1 -> i)
 for loop.between(10, 1) // equiv to for (10 -> var i; i > 1; i - 1 -> i)

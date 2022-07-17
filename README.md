@@ -90,8 +90,30 @@ y -> var inputResult GetInputResult // no error :)
 
 you may not assign or return arbitrary strings to or from variable or functions that have a specific enum type. you must respect the type.
 
-## piping
-see lines 17-33 of `target.m`. i'm not writing all those examples out.
+## assignment and piping
+i am not writing proper docs for this :)
+```cs
+// assignment
+// calculate 5, assign it to a new variable called num, then calculate 55 (num * 11) and assign that to num
+// this implicitly types num as an int, you can be pedantic and assign to `var num int` but it has its place better on its own when you don't have anything to assign to the variable yet
+5 -> var num; num * 11 -> num
+var name string
+"joe biven" -> name
+
+// piping
+// calculates 58, which turns into "58" via int to ascii, and is written to console. num remains 55
+num + 3 | math.itoa | tty.writeln
+
+// piping an array to a function that doesn't take an array argument passes multiple arguments
+// if it does take an array argument but you want to pass additional arguments, you must encapsulate that array in another array
+[3, 2] | math.pow // 3^2 = 9
+[[1, 2], [3, 4]] | arrays.concat // [1, 2, 3, 4]
+
+// piping a value into a function that has arguments will allow you to pass the arguments via the $
+tty.readln() | math.atoi | math.pow($, 3) // puts user input to power of three
+[1, 0] | arrays.push([4, 3, 2], $1, $2) // [4, 3, 2, 1, 0] typeof int[]
+[[1, 0], [-1, -2]] | arrays.push([[4], [3], [2]], $) // [[4], [3], [2], [1, 0], [-1, -2]] typeof int[][]
+```
 
 ## conditionals
 conditionals are magenta's `if` and `switch` statements, it acts by piping the result of the expression the conditional branches off of to all cases. it can be an `if` by having cases such as `|> len > len(y) :` where piping into a comparator or something will determine if the case will be ran, or it can be a `switch` by having cases such as `|> z :` where piping directly into another value will compare them.
@@ -164,4 +186,92 @@ if you just want something to catch errors but no error in particular, you can u
 ```cs
 // catches any errors and log it via. the err library and exits, otherwise set var squareroot to result
 math.sqrt(-1) !! break err.log; -> var squareroot
+```
+
+## structs
+```cs
+// structs are self explainatory
+struct Guy {
+	name string = "guy", // default value for name
+	age int,             // no default value, will be initialized with int's default (0)
+	awesome bool,
+	gay bool,
+}
+// methods
+// a function beginning with the name of a struct and a period followed by the method name
+int Guy.setAge(newAge int) {
+	// access to the
+	age -> var oldAge
+	newAge -> age
+	// return is optional here but kept for clarity, last line could just be `oldAge`
+	return oldAge
+}
+// usage
+new Guy(name "lisa", age 27, awesome true) -> var lisa
+lisa.setAge(29) - lisa.age // 2
+lisa.awesome // true
+lisa.gay // false (default value of type bool)
+```
+
+## loops
+```cs
+// when there are brackets, magenta uses C style loops
+for (0 -> var i; i < 10; i + 1 -> i) { ... }
+
+// when there are no brackets, magenta uses Iterators
+for returnsAnIterator() { ... }
+
+// magenta generates an iterator and uses your custom variable name for the `in` keyword
+for item in myArray { item; ... }
+for item, index in myArray { myArray[index] == item... }
+for key in myDict { dictionary[key]; ... }
+for key, item in myDict { dictionary[key] == item; ... }
+
+// loop library examples
+for loop.while(() => expr) // equiv to for(; expr;)
+for loop.to(10) // equiv to for (0 -> var i; i < 10; i + 1 -> i)
+for loop.from(10) // equiv to for (10 -> var i; i > 0; i - 1 -> i)
+for loop.between(10, 1) // equiv to for (10 -> var i; i > 1; i - 1 -> i)
+for loop.between(6, 15, 3) // equiv to for (0 -> var i; i < 10; i + 1 -> i)
+for loop.between(16, 8, 2) // equiv to for (0 -> var i; i < 10; i + 1 -> i)
+// each one of these returns an iterator like
+return new Iterator(
+	a -> var i,
+	a ♢ b,
+	i ± step -> i)
+```
+
+## namespacing
+at the top of each magenta source file, magenta expects a namespace. at compile time the working directory will be scanned for magenta files and the one in the namespace `main` will be chosen as the entry point. there may be multiple files belonging to a certain namespace, but only one file may be in the `main` namespace!
+```cs
+namespace main
+```
+
+then after the `namespace` decleration, you may include libraries
+```cs
+// include libraries and namespaces
+include tty
+include err
+include math
+include loop
+include arrays
+include myUtility // eg. some other namespace in the project folder
+
+// can be written in one neat line
+include tty err math loop arrays myUtility
+```
+
+you may alias an included namespace, but then you cannot include any other namespaces in that line
+```cs
+include myUtility.errors as myErrors
+
+// these are equivalent
+myUtility.errors.GayError
+myErrors.GayError
+```
+
+it can also be useful when writing a library
+```cs
+namespace myLib
+include myLib.errors as errors
 ```
