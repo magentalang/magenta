@@ -125,7 +125,7 @@ struct Guy {
 	gay bool,
 }
 // methods
-// a function where beginning with the name of a struct and a period
+// a function beginning with the name of a struct and a period followed by the method name
 int Guy.setAge(newAge int) {
 	// access to the
 	age -> var oldAge
