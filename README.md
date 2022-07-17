@@ -63,7 +63,7 @@ globalHomer.name | tty.println // "homer"
 ## enums
 magenta borrows the typescript way of doing enums
 
-> typescript doesn't have enums exactly, but has equivalent functionality from typing something as a list of potential strings a value could have with the type syntax `"FOO" | "BAR" | "BAZ"`, then the compiler checks whether what a function is allowed to return, what you will get when calling a function, what a variable can be set to, etc. as well as giving you autocorrect in your editor
+> typescript doesn't have enums exactly, but has equivalent functionality from typing something as a list of potential strings a value could have with the type syntax `"FOO" | "BAR" | "BAZ"`, then the compiler checks whether what a function is allowed to return, what you will get when calling a function, what a variable can be set to, etc. as well as giving you autocomplete in your editor
 
 in magenta, you define enums as a list of strings, then you can use it as the type for functions returns/function arguments/variables/etc. enums present themselves as strings but may only have specific values, allowing comparisons with `x == "ENUM_VALUE"` instead of the longhand seen in other languages like `x == myEnum.enumValue` -- it acts the exact same way but is shorter and can be much
 
@@ -98,11 +98,6 @@ conditionals are magenta's `if` and `switch` statements, it acts by piping the r
 
 there are two kinds of cases. a "single line case" written with a `case :` will expect a `|>` for the next case, but a "block case" written with a `case {` will expect a `}>` for the next case or `}` for the end of the entire statement. a "single line case" is not necessarily confined to a single line though -- it's just shorter and more appealing if you want to write short single line cases, the advantage of using a "block case" lies in the ability to nest conditionals
 
-single line conditional
-```cs
-potentiallyReturnsDefault() -> var result == default ?? tty.writeln("is default")
-```
-
 "switch" conditional with block cases and single line cases
 ```cs
 getInput("password")
@@ -126,3 +121,47 @@ tty.readln()
 ```
 
 i'm sure you can infer how an "if" condtional with block cases is written
+
+a single line conditional also exists and uses `??`, it expects a boolean expression to its left and a list of expressions deliminated by semicolons to its right (it may only run expressions on the same line!)
+```cs
+potentiallyReturnsDefault() -> var result == default ?? tty.writeln("is default")
+```
+
+## errors and error handling
+errors in magenta are defined as enums. an error enum must have an okay value and it must be the default
+```cs
+enum NavigationError {"ok" "notExist" "toFile"} 0
+```
+
+example function for the below example :)
+```cs
+enum FileStatus {"notExist" "file" "directory" "symlink"} 0
+FileStatus stat(file string) { ... }
+```
+
+don't worry, magenta doesn't force you to handle errors like java! the `throws` keyword just assures you on which errors you are allowed to throw, and what errors a catch can expect, providing autocomplete and compile time checks just like how enums are typed!
+```cs
+string cd(path string) throws NavigationError {
+	stat(path) -> var pathStat
+	|> "notExist" : throw "notExist"
+	|> "file"     : throw "toFile"
+
+	... // return the new full current path
+}
+```
+
+error handling is done with the catching statement (`!>`), and the whole thing is skipped if nothing is thrown. unlike the conditional you cannot use blocks, you shouldn't need to anyway.
+
+the `default` case in a catch statement is not required, though allows you to make use of the actual value returned by the function. after it a pipe of some sort is expected; it can be a regular pipe (`|`) or a conditional statement (`|>`) or assignment (`->`)
+```cs
+cd("thisPathDoesNotExist")
+!> "notExist" : tty.writeln("invalid path"); return
+!> "toFile"   : tty.writeln("cannot navigate into file"); return
+!> default    | tty.writef("%s λ ", $)
+```
+
+if you just want something to catch errors but no error in particular, you can use the single line catch `!!`. a break/return statement is required at the end of the handling expression(s), as well as a semicolon
+```cs
+// catches any errors and log it via. the err library and exits, otherwise set var squareroot to result
+math.sqrt(-1) !! break err.log; -> var squareroot
+```
