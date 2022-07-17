@@ -1,18 +1,25 @@
 // namespace that the current file belongs to
 namespace main
 // include libraries and namespaces
-use tty
-use err
-use math
-use loop
-use arrays
-use myUtility // eg. some other namespace in the project folder
+include tty
+include err
+include math
+include loop
+include arrays
+include myUtility // eg. some other namespace in the project folder
 // can be written in one neat line
-use tty err math loop arrays myUtility
+include tty err math loop arrays myUtility
+// you may alias a namespace, but then you cannot include any other namespaces in that line
+// allows the use of the foo member of the namespace via myErrors.foo instead of myUtility.errors.foo
+// can also be useful when writing inside a library eg. namespace myLib; include myLib.errors as errors
+include myUtility.errors as myErrors
 
 // assignment
 // calculate 5, assign it to a new variable called num, then calculate 55 (num * 11) and assign that to num
+// this implicitly types num as an int, you can be pedantic and assign to `var num int` but it has its place better on its own when you don't have anything to assign to the variable yet
 5 -> var num; num * 11 -> num
+var name string
+"joe biven" -> name
 // piping
 // calculates 58, which turns into "58" via int to ascii, and is written to console. num remains 55
 num + 3 | math.itoa | tty.writeln
@@ -28,16 +35,28 @@ tty.readln() | math.atoi | math.pow($, 3) // puts user input to power of three
 // one line conditional
 potentiallyReturnsDefault() -> var result == default ?? tty.writeln("is default")
 
-// multi line conditional/switch statement/switch pipe
-// the result of the expression behind the |> is piped into each expression before each :
-// if one such expression is true,
-getInput("password") |>
-"good"  : login(); return 0
-"short" : tty.writeln("too short")
-else    : tty.writeln("otherwise invalid")
+// multi line conditional statement pipe
+// the result of the expression behind the first |> is piped into each expression before each { or :
+// { starts a block that expects a }> (else if) or } (end of the entire statement)
+// : starts an expression list deliminated by semicolons that is broken by another |> (you cannot nest conditionals outside of blocks)
+// if one such expression is true, the block after it is executed and none of the other ones are
+getInput("password")
+|> "good"  {
+	login()
+	return 0
+}> "short" : tty.writeln("too short")
+|> "long"  : tty.writeln("too long")
+|> else    {
+	tty.writeln("password is otherwise invalid")
+	tty.writeln("man you really fucked up")
+}
+// alternative conditional example with no blocks
+isGay(new Guy())
+|> true  : // yes
+|> false : // no
 
 // the `return` statement stops the currently running function
-// the `break` statement breaks the current expression (be it a switch, a loop, top level of a function, etc)
+// the `break` statement breaks the current expression (be it a conditional, a loop, top level of a function, etc)
 // the `continue` statement breaks the current expression and goes back to the top of the block
 // all of these can take a ""return" value"
 return 1
@@ -59,12 +78,11 @@ enum GetInputResult {"good" "long" "short" "bad"} 3
 // T functionName(arg0 T, arg1 optionalT?, argRest T...)
 //                                         ^ typeof T... is T[] but contains overflowing args
 GetInputResult getInput(expected string, input string?) {
-	tty.readln() -> var input
-
-	input |>
-	== expected         : break "good"
-	len < len(expected) : break "short"
-	len > len(expected) : break "long"
+	// example of a conditional being used with complex comparisons
+	tty.readln()
+	|> == expected         : break "good"
+	|> len < len(expected) : break "short"
+	|> len > len(expected) : break "long"
 
 	// ending without an `return`/`break`/`continue` is equivalent to `return default`
 	// if last calculate expression is same as function's return type, return that instead of default
@@ -77,24 +95,27 @@ FileStatus stat(file string) { ... }
 // an error enum has to have an ok value, and it has to be the default value
 enum NavigationError {"ok" "notExist" "toFile"} 0
 string cd(path string) throws NavigationError {
-	stat(path) -> var pathStat |>
-	"notExist" : throw "notExist"
-	"file"     : throw "toFile"
+	stat(path) -> var pathStat
+	|> "notExist" : throw "notExist"
+	|> "file"     : throw "toFile"
 
 	... // return the new full current path
 }
-// error handling is done with a catching switch statement (!>)
-// the entire catch switch is skipped if nothing is thrown
-cd("thisPathDoesNotExist") !>
-"notExist" : tty.writeln("invalid path"); return
-"toFile"   : tty.writeln("cannot navigate into file"); return
-// the default case in a catch switch is not required
-// after the `default` case in the error handling switch magenta expects a pipe of some sort
-// it can be a regular pipe (|) or a switch pipe (|>) or saved into a variable (->)
-default | tty.writef("%s $ ")
+// error handling is done with a catching statement (!>)
+// the entire catch is skipped if nothing is thrown
+// unlike the conditional (|>) you cannot use blocks, you shouldn't need to anyway
+cd("thisPathDoesNotExist")
+!> "notExist" : tty.writeln("invalid path"); return
+!> "toFile"   : tty.writeln("cannot navigate into file"); return
+// the default case in a catch statement is not required
+// after the `default` case in the catch statement magenta expects a pipe of some sort
+// it can be a regular pipe (|) or a conditional statement (|>) or assignment (->)
+!> default    | tty.writef("%s λ ", $)
+
 // one liner error handling
-// catches any errors and log it via. the err library, otherwise set var squareroot to result
-math.sqrt(-1) !! err.log; return; -> var squareroot
+// catches any errors and log it via. the err library and exits, otherwise set var squareroot to result
+// a break/return statement is required at the end of the handling expression(s), as well as a semicolon
+math.sqrt(-1) !! break err.log; -> var squareroot
 
 // structs are self explainatory
 struct Guy {
