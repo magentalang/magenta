@@ -5,7 +5,7 @@ a quick and bad prototype of the magenta programming language's basic functional
 yes, the **prototype** is written in javascript, it is because it is the language i am most comfortable in. I have never finished a proper programmnig language before, *once i get the basic concepts banged out* i **will** move onto a **real language** to implement magenta in
 
 # language design
-inspired by the bourne shell, f#, typescript, and go. it is strongly typed, immutable where possible, does not allow null, and aims to keep code as short as possible whilst maintaining readability and not being absolutely ridiculous
+inspired by the bourne shell, f#, typescript, and go. it is strongly typed, immutable where possible, does not have null, and aims to keep code as short as possible whilst maintaining not being absolutely ridiculous
 
 ## default values
 there is no "null" or "undefined" in magenta, you are encouraged to assign to variables where they are defined, but if such is not possible the variable will be assigned its default value until the writer decides to assign to them later
