@@ -5,7 +5,7 @@ a quick and bad prototype of the magenta programming language's basic functional
 yes, the **prototype** is written in javascript, it is because it is the language i am most comfortable in. I have never finished a proper programmnig language before, *once i get the basic concepts banged out* i **will** move onto a **real language** to implement magenta in
 
 # language design
-inspired by the bourne shell, f#, typescript, and go. it is strongly typed, immutable where possible, does not have null, and aims to keep code as short as possible whilst maintaining not being absolutely ridiculous
+inspired by the bourne shell, f#, typescript, and go. it is strongly typed, immutable where convenient, does not have null, and aims to keep code as short as possible whilst maintaining not being absolutely ridiculous
 
 ## default values
 there is no "null" or "undefined" in magenta, you are encouraged to assign to variables where they are defined, but if such is not possible the variable will be assigned its default value until the writer decides to assign to them later
@@ -21,7 +21,7 @@ var z Guy    // the struct is initialized with default values of all of its memb
 ```
 
 ## memory management
-magenta is mostly immutable, and has no references. there is no manual memory management, and it implements escape analysis as its sole garbage collection mechanism
+magenta is somewhat immutable, and has no references. there is no manual memory management, and it implements escape analysis as its sole garbage collection mechanism
 
 ```cs
 var globalHomer Guy
@@ -91,13 +91,6 @@ you may not assign or return arbitrary strings to or from variable or functions 
 ## assignment and piping
 i am not writing proper docs for this :)
 ```cs
-// assignment
-// calculate 5, assign it to a new variable called num, then calculate 55 (num * 11) and assign that to num
-// this implicitly types num as an int, you can be pedantic and assign to `var num int` but it has its place better on its own when you don't have anything to assign to the variable yet
-5 -> var num; num * 11 -> num
-var name string
-"joe biven" -> name
-
 // piping
 // calculates 58, which turns into "58" via int to ascii, and is written to console. num remains 55
 num + 3 | math.itoa | tty.writeln
