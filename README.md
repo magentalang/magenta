@@ -100,8 +100,7 @@ magenta borrows the typescript way of doing enums
 
 > typescript doesn't have enums exactly, but has equivalent functionality from typing something as a list of potential strings a value could have with the type syntax `"FOO" | "BAR" | "BAZ"`, then the compiler checks whether what a function is allowed to return, what you will get when calling a function, what a variable can be set to, etc. as well as giving you autocomplete in your editor
 
-in magenta, you define enums as a list of strings, then you can use it as the type for functions returns/function arguments/variables/etc. enums present themselves as strings but may only have specific values, allowing comparisons with `x == "ENUM_VALUE"` instead of the longhand seen in other languages like `x == myEnum.enumValue` -- it acts the exact same way but is shorter and can be much
-
+in magenta, you define enums as a list of strings, then you can use it as the type for functions returns/function arguments/variables/etc. enums present themselves as strings but may only have specific values, allowing comparisons with `x == "ENUM_VALUE"` instead of the longhand seen in other languages like `x == myEnum.enumValue` -- it acts the exact same way but is shorter
 ```cs
 enum GetInputResult {
 	"good"
