@@ -8,6 +8,8 @@ yes, the **prototype** is written in javascript, it is because it is the languag
 inspired by the bourne shell, f#, typescript, and go. it is strongly typed, immutable where convenient, does not have null, and aims to keep code as short as possible whilst maintaining not being absolutely ridiculous
 
 ## default values
+assignment is done with the `->` operator instead of `=` in most languages, this is because it fits in well with *piping* which is explained later, magenta can use `=` for lazy comparison and `==` for exact comparisons*
+
 there is no "null" or "undefined" in magenta, you are encouraged to assign to variables where they are defined, but if such is not possible the variable will be assigned its default value until the writer decides to assign to them later
 
 ```cs
@@ -18,6 +20,28 @@ there is no "null" or "undefined" in magenta, you are encouraged to assign to va
 var x string // empty string ("")
 var y int    // zero (0)
 var z Guy    // the struct is initialized with default values of all of its members (new Guy())
+```
+
+*TODO: explain magenta's comparators, and maths too for that matter
+
+## constants
+the `let` keyword denotes contant values. they are useful ie. in implementations of mathematical calculations since the use of a value in multiple places can be optimized
+```cs
+// the compiler replaces all futher instances of 'a' with "ipsum"
+"lorem" -> let a
+// equivalent, but you can optionally specify a type if it makes it clearer for a maintainer in a certain situation
+"lorem" -> let a string
+
+// **not possible**, `const` is used in struct definitions only
+"lorem" -> const a
+"lorem" -> const a string
+```
+
+if you do not assign to a constant right away, you have a chance to assign to it only once more! optimized as to have
+```cs
+let a string
+"lorem" -> a // no error, a is changed from its default type
+"ipsum" -> a // errors, a has already been set
 ```
 
 ## memory management
@@ -88,22 +112,63 @@ y -> var inputResult GetInputResult // no error :)
 
 you may not assign or return arbitrary strings to or from variable or functions that have a specific enum type. you must respect the type.
 
-## assignment and piping
-i am not writing proper docs for this :)
+## arrays
+arrays are typed as other types with brackets on the end
 ```cs
-// piping
-// calculates 58, which turns into "58" via int to ascii, and is written to console. num remains 55
-num + 3 | math.itoa | tty.writeln
+var numbers int[]
+var twoDimensional
+```
 
-// piping an array to a function that doesn't take an array argument passes multiple arguments
-// if it does take an array argument but you want to pass additional arguments, you must encapsulate that array in another array
+## piping
+a function without brackets is an expression that errors, unless you pass then into a location that accepts that kinda of function, *or* are piping a value to it.
+
+the pipe character `|` pipes the expression on the left to the one on the right (`expr1 | expr2`), another pipe at the end of this entire line an expression to the left of that pipe (`expr1 | expr2 | expr 3` == `(expr1 | expr2) | expr 3`)
+```cs
+32 + 32 | math.sqrt // 8
+32 + 32 | math.sqrt | math.itoa // "8"
+```
+
+piping an array into a function will allow you to pass multiple arguments all at once, if you want to pass an array to a function that takes array arguments, you must encapsulate that array in another array
+```cs
 [3, 2] | math.pow // 3^2 = 9
-[[1, 2], [3, 4]] | arrays.concat // [1, 2, 3, 4]
+[[3, 2]] | math.sum // 5
+```
 
-// piping a value into a function that has arguments will allow you to pass the arguments via the $
-tty.readln() | math.atoi | math.pow($, 3) // puts user input to power of three
-[1, 0] | arrays.push([4, 3, 2], $1, $2) // [4, 3, 2, 1, 0] typeof int[]
-[[1, 0], [-1, -2]] | arrays.push([[4], [3], [2]], $) // [[4], [3], [2], [1, 0], [-1, -2]] typeof int[][]
+if you pipe into a function with arguments and not just the name of a function, you can use the the dollar sign to pipe A) your argument into a single location, B) multiple arguments in a single location, C) multiple arguments across different locations. you can also use multiple `$`s or multiple of the same `$n`
+
+in this example the output of `tty.readln` is passed into `math.atoi`, which is then put to the power of three
+```cs
+tty.readln() | math.atoi | math.pow($, 3)
+```
+
+a few more examples
+```cs
+[1, 0] | arrays.push([4, 3, 2], $)
+// equivalent
+[1, 0] | arrays.push([4, 3, 2], $1, $2)
+→	push([4, 3, 2], 1, 2)
+	→ return
+
+// same as the second example above but uses
+[["Hello,", "World!"]] | arrays.join($, " ") // "Hello, World!"
+
+[[1, 0], [-1, -2]] | arrays.push([[4], [3], [2]], $)
+→	push([[4], [3], [2]], [1, 0], [-1, -2])
+	→	[[4], [3], [2], [1, 0], [-1, -2]] typeof int[][]
+```
+
+further examples
+```cs
+// all of these are equivalent or accomplish the same effect
+ 3 * 5
+ 3  | * 5
+ 3  | $ * 5
+[3] | $ * 5
+[3] | $1 * 5
+// errors bc doing `3, 6 * 5` would not be valid syntax
+[3, 6] | $ * 5
+// errors bc doing `int[] * 5` would not be valid syntax (although it'd be neat, you should use `arrays.map` instead)
+[[3, 6]] | $ * 5
 ```
 
 ## conditionals
@@ -163,7 +228,7 @@ string cd(path string) throws NavigationError {
 }
 ```
 
-error handling is done with the catching statement (`!>`), and the whole thing is skipped if nothing is thrown. unlike the conditional you cannot use blocks, you shouldn't need to anyway.
+error handling is done with the catching statement (`!>`), and the whole thing is skipped if nothing is thrown
 
 the `default` case in a catch statement is not required, though allows you to make use of the actual value returned by the function. after it a pipe of some sort is expected; it can be a regular pipe (`|`) or a conditional statement (`|>`) or assignment (`->`)
 ```cs
@@ -173,6 +238,23 @@ cd("thisPathDoesNotExist")
 !> default    | tty.writef("%s λ ", $)
 ```
 
+you can have blocks here as well
+```cs
+cd("thisPathDoesNotExist")
+!> "notExist" :
+	tty.writeln("invalid path")
+	return
+!> "toFile" {
+	getFileParentFolder()
+	!> ... : ... // conditionals and/or further errors possible in blocks
+	return
+}> default |> // it is cleaner to put the |> here
+   ... : ...
+|> ... { ...
+}> ... { ...
+}
+```
+
 if you just want something to catch errors but no error in particular, you can use the single line catch `!!`. a break/return statement is required at the end of the handling expression(s), as well as a semicolon
 ```cs
 // catches any errors and log it via. the err library and exits, otherwise set var squareroot to result
@@ -180,16 +262,33 @@ math.sqrt(-1) !! break err.log; -> var squareroot
 ```
 
 ## structs
+structs are self explainatory enough, their constant fields are defined by putting `const` behind the type, and required fields are defined by putting `required` behind the `type` or behind the `const` behind a type
 ```cs
-// structs are self explainatory
 struct Guy {
-	name string = "guy", // default value for name
-	age int,             // no default value, will be initialized with int's default (0)
-	awesome bool,
-	gay bool,
+	name string = "guy", // defines string field 'name' with value "guy"
+	name = "guy", // equivalent
+
+	age int, // no default value, will be initialized with default value (0)
+	gay bool, // same but with a boolean (false)
+
+	normal const bool = false, // defines bool field 'normal' with value false
+	normal const = false, // equivalent
+
+	// **not possible**, use `required` instead for the behaviour you're expecting
+	normal const bool,
+
+	// **not possible**, use `const`
+	normal let bool = false
+
+	// defines field 'awesome' which much be assigned a value when created
+	awesome required bool,
+	// similar to the above, but cannot be changed after it is set
+	awesome required const bool,
 }
-// methods
-// a function beginning with the name of a struct and a period followed by the method name
+```
+
+a method is defined as a function beginning with the name of a struct and a period followed by the method name
+```cs
 int Guy.setAge(newAge int) {
 	// access to the
 	age -> var oldAge
@@ -197,11 +296,42 @@ int Guy.setAge(newAge int) {
 	// return is optional here but kept for clarity, last line could just be `oldAge`
 	return oldAge
 }
-// usage
-new Guy(name "lisa", age 27, awesome true) -> var lisa
+```
+
+a constructor can be defined as a methods with only the name of a struct, cannot have arguments/overflows because of how magenta's `new` works
+```cs
+int Guy() {
+	// for example if the struct is initialized with certain values, you have the option to initialize other values (eg. event handlers?) differently
+	gay ?? doSomething()
+}
+```
+
+a struct is initialized with the `new` keyword. the constructor is called after, with fields assigned to at will with the same syntax as arguments are typed in function definitions except the types are now the values
+
+in this example the struct is allocated in memory and its fields `name`, `age`, and `awesome` are set. the initialization of `awesome` may not be omitted as it is a `required` value. `normal true` overrides the default value value of `normal`, which can't be done later since it is a `const`!
+```cs
+new Guy(name "lisa", age 27, awesome true, normal true) -> var lisa
+```
+
+a few examples using the `lisa` struct initialized above
+```cs
 lisa.setAge(29) - lisa.age // 2
+
 lisa.awesome // true
 lisa.gay // false (default value of type bool)
+
+false -> lisa.awesome // error if it is a const as well as required
+
+true -> lisa.normal // error
+```
+
+if a struct is inititalized into a constant, **none** of it's fields may be set directly, but can still be modified if done through a function (if is not `const`!)
+```cs
+new Guy(name "lisa", age 27) -> let lisa
+
+29 -> lisa.age // errors
+
+lisa.setAge(29) // no error
 ```
 
 ## loops
@@ -218,18 +348,28 @@ for item, index in myArray { myArray[index] == item... }
 for key in myDict { dictionary[key]; ... }
 for key, item in myDict { dictionary[key] == item; ... }
 
-// loop library examples
-for loop.while(() => expr) // equiv to for(; expr;)
-for loop.to(10) // equiv to for (0 -> var i; i < 10; i + 1 -> i)
-for loop.from(10) // equiv to for (10 -> var i; i > 0; i - 1 -> i)
-for loop.between(10, 1) // equiv to for (10 -> var i; i > 1; i - 1 -> i)
-for loop.between(6, 15, 3) // equiv to for (0 -> var i; i < 10; i + 1 -> i)
-for loop.between(16, 8, 2) // equiv to for (0 -> var i; i < 10; i + 1 -> i)
+// examples of for loops using the 'loop' library
+for loop.while(() => expr)
+→	for(; expr;)
+
+for loop.to(10)
+→	 for (0 -> var i; i < 10; i + 1 -> i)
+for loop.from(10)
+→	 for (10 -> var i; i > 0; i - 1 -> i)
+
+for loop.between(10, 1)
+→	 for (10 -> var i; i > 1; i - 1 -> i)
+for loop.between(6, 15, 3)
+→	 for (0 -> var i; i < 10; i + 1 -> i)
+for loop.between(16, 8, 2)
+→	 for (0 -> var i; i < 10; i + 1 -> i)
+
 // each one of these returns an iterator like
 return new Iterator(
-	a -> var i,
-	a ♢ b,
-	i ± step -> i)
+	init () => a -> var i,
+	test () => a ♢ b,
+	final () => i ± step -> i,
+)
 ```
 
 ## namespacing
