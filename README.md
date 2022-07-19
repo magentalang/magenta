@@ -4,22 +4,21 @@ a quick and bad prototype of the magenta programming language's basic functional
 ## about javascript...
 yes, the **prototype** is written in javascript, it is because it is the language i am most comfortable in. I have never finished a proper programmnig language before, *once i get the basic concepts banged out* i **will** move onto a **real language** to implement magenta in
 
-## index
-- [language design](#language-design)
-	- [default values](#default-values)
-	- [constants](#constants)
-	- [memory management](#memory-management)
-	- conditionals
-	- arithmetic
-	- [enums](#enums)
-	- [piping](#piping)
-	- [errors and error handling](#errors-and-error-handling)
-	- [structs](#structs)
-	- [loops](#loops)
-	- [namespacing](#namespacing)
-
 # language design
 inspired by the bourne shell, f#, typescript, and go. it is strongly typed, immutable where convenient, does not have null, and aims to keep code as short as possible whilst maintaining not being absolutely ridiculous
+
+## index
+- [default values](#default-values)
+- [constants](#constants)
+- [memory management](#memory-management)
+- conditionals
+- arithmetic
+- [enums](#enums)
+- [piping](#piping)
+- [errors and error handling](#errors-and-error-handling)
+- [structs](#structs)
+- [loops](#loops)
+- [namespacing](#namespacing)
 
 ## default values
 assignment is done with the `->` operator instead of `=` in most languages, this is because it fits in well with *piping* which is explained later, magenta can use `=` for lazy comparison and `==` for exact comparisons*
