@@ -11,8 +11,9 @@ inspired by the bourne shell, f#, typescript, and go. it is strongly typed, immu
 - [default values](#default-values)
 - [constants](#constants)
 - [memory management](#memory-management)
-- conditionals
-- arithmetic
+- [booleans](#booleans)
+- [conditionals](#conditionals)
+- [arithmetic](#arithmetic)
 - [enums](#enums)
 - [piping](#piping)
 - [errors and error handling](#errors-and-error-handling)
@@ -21,7 +22,7 @@ inspired by the bourne shell, f#, typescript, and go. it is strongly typed, immu
 - [namespacing](#namespacing)
 
 ## default values
-assignment is done with the `->` operator instead of `=` in most languages, this is because it fits in well with *piping* which is explained later, magenta can use `=` for lazy comparison and `==` for exact comparisons*
+assignment is done with the `->` operator instead of `=` in most languages, this is because it fits in well with *piping* which is explained later
 
 there is no "null" or "undefined" in magenta, you are encouraged to assign to variables where they are defined, but if such is not possible the variable will be assigned its default value until the writer decides to assign to them later
 
@@ -34,8 +35,6 @@ var x string // empty string ("")
 var y int    // zero (0)
 var z Guy    // the struct is initialized with default values of all of its members (new Guy())
 ```
-
-*TODO: explain magenta's comparators, and maths too for that matter
 
 ## constants
 the `let` keyword denotes contant values. they are useful ie. in implementations of mathematical calculations since the use of a value in multiple places can be optimized
@@ -93,6 +92,97 @@ getName() | tty.println // "lisa"
 
 // ...but the further modification of 'guy' is not propagated (as magenta has no references!!!)
 globalHomer.name | tty.println // "homer"
+```
+
+## booleans
+a value of T\<bool\> can only be set to `true`, `false`, or something that returns T\<bool\> (which is `true` or `false`)
+
+magenta's booleans are home to magenta's one unary operator, the `!` which is only allowed behind expressions typed `bool`
+```cs
+!false or false! // → true
+!true  or true!  // → false
+```
+
+there is no "internal truthiness" that may be revealed with `!` as a shorthand either, the following all error
+```cs
+!""  or ""!
+!"x" or "x"!
+!0   or 0!
+!1   or 1!
+```
+
+## conditionals
+magenta has the following conditionals
+```cs
+bool == bool // → false
+bool != bool // → true
+bool && bool // → false
+bool || bool // → true
+```
+
+as logical expressions are evaluated left to right, they are tested for possible "short-circuit" evaluation using the following rules
+```cs
+bool f(x int) {
+	x == 0 ? false : true -> let r
+	tty.writeln(r ? "true" : "false")
+	return r
+}
+
+// `$` is stdout, `→` is return value
+f(1) || f(0)                 // $ t         → t
+f(1) && f(0)                 // $ t, f      → f
+f(0) || f(1) || f(1)         // $ f, t      → t
+f(1) && f(1) && f(0) && f(1) // $ t, t, f   → f
+```
+
+## arithmetic
+magenta has the following math operators, which (except for `+`) can only be used for ints
+```cs
+x + y
+x - y
+x / y
+x * y
+x ^ y // power (xʸ)
+x % y // remainder (of x⁄y)
+```
+
+they may be used for assignment, equivalent rules on typing
+```cs
+var x int; var y int;
+
+x +-> y // y + x -> y
+x --> y // y - x -> y
+x /-> y // y / x -> y
+x *-> y // y * x -> y
+x ^-> y // y ^ x -> y (yˣ)
+x %-> y // y % x -> y (r of y⁄x)
+```
+
+arithmetic in magenta is done left to right, there is no operator precedence
+```cs
+// Brackets, Indices, Multiply, Divide, Add, Subtract
+100  +  30  * 3  // → 133
+100  + (30  * 3) // → 133
+(100 +  30) * 3  // → 390
+
+// magenta
+100  +  30  * 3  // → 390
+100  + (30  * 3) // → 133
+(100 +  30) * 3  // → 390
+```
+
+brackets do not get calculated first
+```cs
+Int a(x int) { tty.writeln("a"); x }
+Int b(x int) { tty.writeln("b"); x }
+
+a(100) + (b(30) * 3)
+
+// Brackets, Indices, Multiply, Divide, Add, Subtract
+b, a
+
+// magenta
+a, b
 ```
 
 ## enums
