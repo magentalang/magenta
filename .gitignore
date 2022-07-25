@@ -1,8 +1,3 @@
-# llamechat files
-db_users.nosql
-db_servers.nosql
-db_channels.nosql
-
 # Logs
 logs
 *.log

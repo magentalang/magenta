@@ -27,7 +27,7 @@ assignment is done with the `->` operator instead of `=` in most languages, this
 there is no "null" or "undefined" in magenta, you are encouraged to assign to variables where they are defined, but if such is not possible the variable will be assigned its default value until the writer decides to assign to them later
 
 ```cs
-// regular variable assignment, type in inferred
+// regular variable assignment, type is inferred
 "lorem" -> var w // string ("lorem")
 
 // "empty" variable assignment, type has to be specified
