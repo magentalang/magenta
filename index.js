@@ -27,14 +27,12 @@ fs.readFile("input.m", "utf8").then((data) => {
 function help(warnings, errors) {
 	// output parser warnings
 	warnings.forEach(w => {
-		console.log(`\x1b[93;1mwarn, file ${w.file} \x1b[m`);
 		console.log(`\x1b[93;1m[${w.row}, ${w.col}] ${w.msg} \x1b[m`);
 		console.log("\t" + w.source.replace(/\n/g, "\n\t"));
 	});
 
 	// output parser errors
 	errors.forEach(e => {
-		console.log(`\x1b[31;1merror, file ${e.file} \x1b[m`);
 		console.log(`\x1b[31;1m[${e.row}, ${e.col}] ${e.msg} \x1b[m`);
 		console.log("\t" + e.source.replace(/\n/g, "\n\t"));
 	});
