@@ -7,6 +7,25 @@ yes, the **prototype** is written in javascript, it is because it is the languag
 # language design
 inspired by the bourne shell, f#, typescript, and go. it is strongly typed, immutable where convenient, does not have null, and aims to keep code as short as possible whilst maintaining not being absolutely ridiculous
 
+## types reference
+a reference for all built in types
+
+keyword  | type
+---------|------
+`bool`   | boolean
+`string` | string
+type`[]` | array of type
+`float`  | floating point number
+`double` | double percision floating point number
+`byte`   | 8-bit integer (unsigned)
+`sbyte`  | 8-bit integer (signed)
+`int`    | 16-bit integer
+`uint`   | 16-bit integer (unsigned)
+`int32`  | 32-bit integer
+`uint32` | 32-bit integer (unsigned)
+`int64`  | 64-bit integer
+`uint64` | 64-bit integer (unsigned)
+
 ## index
 - [default values](#default-values)
 - [constants](#constants)
@@ -114,10 +133,12 @@ there is no "internal truthiness" that may be revealed with `!` as a shorthand e
 ## conditionals
 magenta has the following conditionals
 ```cs
-bool == bool // → false
-bool != bool // → true
-bool && bool // → false
-bool || bool // → true
+any  == any
+any  != any
+int  >= int
+int  <= int
+bool && bool
+bool || bool
 ```
 
 as logical expressions are evaluated left to right, they are tested for possible "short-circuit" evaluation using the following rules

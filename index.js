@@ -13,11 +13,12 @@ let err = false;
 fs.readFile("input.m", "utf8").then((data) => {
 	let [ tokens, lexerWarnings, lexerErrors ] = lex(data);
 	err = help(lexerWarnings, lexerErrors);
+	console.log(tokens);
 	if (err) return;
 
-	let [ ast, parserWarnings, parserErrors ] = parse(tokens);
-	err = help(parserWarnings, parserErrors);
-	if (err) return;
+	// let [ ast, parserWarnings, parserErrors ] = parse(tokens);
+	// err = help(parserWarnings, parserErrors);
+	// if (err) return;
 
 	// let bytecode = optimize(ast);
 	// run(bytecode);
@@ -26,16 +27,16 @@ fs.readFile("input.m", "utf8").then((data) => {
 function help(warnings, errors) {
 	// output parser warnings
 	warnings.forEach(w => {
-		console.log(`\x1b[93;1mwarn, file ${e.file} \x1b[m`);
+		console.log(`\x1b[93;1mwarn, file ${w.file} \x1b[m`);
 		console.log(`\x1b[93;1m[${w.row}, ${w.col}] ${w.msg} \x1b[m`);
-		console.log(w.source.split("\n").map(x => "\t" + x).join("\n"));
+		console.log("\t" + w.source.replace(/\n/g, "\n\t"));
 	});
 
 	// output parser errors
 	errors.forEach(e => {
 		console.log(`\x1b[31;1merror, file ${e.file} \x1b[m`);
 		console.log(`\x1b[31;1m[${e.row}, ${e.col}] ${e.msg} \x1b[m`);
-		console.log(e.source.split("\n").map(x => "\t" + x).join("\n"));
+		console.log("\t" + e.source.replace(/\n/g, "\n\t"));
 	});
 
 	return errors.length > 0
