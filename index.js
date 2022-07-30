@@ -12,8 +12,8 @@ const fs = {
 let err = false;
 fs.readFile("input.m", "utf8").then((data) => {
 	let [ tokens, lexerWarnings, lexerErrors ] = lex(data);
-	err = help(lexerWarnings, lexerErrors);
 	console.log(tokens);
+	err = help(lexerWarnings, lexerErrors);
 	if (err) return;
 
 	// let [ ast, parserWarnings, parserErrors ] = parse(tokens);

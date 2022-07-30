@@ -35,7 +35,8 @@ type`[]` | array of type
 - [arithmetic](#arithmetic)
 - [enums](#enums)
 - [piping](#piping)
-- [errors and error handling](#errors-and-error-handling)
+- [conditional statements](#conditional-statements)
+- [errors and catch statements](#errors-and-error-handling)
 - [structs](#structs)
 - [loops](#loops)
 - [namespacing](#namespacing)
@@ -294,7 +295,7 @@ further examples
 [[3, 6]] | $ * 5
 ```
 
-## conditionals
+## conditional statements
 conditionals are magenta's `if` and `switch` statements, it acts by piping the result of the expression the conditional branches off of to all cases. it can be an `if` by having cases such as `|> len > len(y) :` where piping into a comparator or something will determine if the case will be ran, or it can be a `switch` by having cases such as `|> z :` where piping directly into another value will compare them.
 
 there are two kinds of cases. a "single line case" written with a `case :` will expect a `|>` for the next case, but a "block case" written with a `case {` will expect a `}>` for the next case or `}` for the end of the entire statement. a "single line case" is not necessarily confined to a single line though -- it's just shorter and more appealing if you want to write short single line cases, the advantage of using a "block case" lies in the ability to nest conditionals
@@ -313,7 +314,7 @@ getInput("password")
 }
 ```
 
-"if" conditional with single line cases
+"if" conditional with just single line cases
 ```cs
 tty.readln()
 |> == expected         : break "good"
@@ -321,7 +322,7 @@ tty.readln()
 |> len > len(expected) : break "long"
 ```
 
-i'm sure you can infer how an "if" condtional with block cases is written
+i'm sure you can infer how an "if" condtional with just block cases is written
 
 a single line conditional also exists and uses `??`, it expects a boolean expression to its left and a list of expressions deliminated by semicolons to its right (it may only run expressions on the same line!)
 ```cs
@@ -361,7 +362,7 @@ cd("thisPathDoesNotExist")
 !> default    | tty.writef("%s λ ", $)
 ```
 
-you can have blocks here as well
+you can have blocks here as well, blocks are "owned" by the cases of the catch statement until the first default
 ```cs
 cd("thisPathDoesNotExist")
 !> "notExist" :
@@ -413,7 +414,6 @@ struct Guy {
 a method is defined as a function beginning with the name of a struct and a period followed by the method name
 ```cs
 int Guy.setAge(newAge int) {
-	// access to the
 	age -> var oldAge
 	newAge -> age
 	// return is optional here but kept for clarity, last line could just be `oldAge`
