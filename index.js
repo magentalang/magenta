@@ -13,10 +13,10 @@ let err = false;
 // - read and lex all included libraries preliminarily
 fs.readFile("input.m", "utf8").then((data) => {
 	let [ tokens, lexerErrors ] = lex(data);
-	console.log(tokens);
+	console.log("lex →", tokens);
 
 	let [ ast, parserErrors ] = parse(tokens);
-	console.log(ast);
+	console.log("\nast →", ast);
 	err = help(lexerErrors.concat(parserErrors));
 	if (err) return;
 

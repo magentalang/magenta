@@ -1,4 +1,12 @@
-namespace main
-include tty
+sum(3, 5)
 
-tty.println(0, 0.0, 0.0.0)
+int sum(x int, y int) {
+	return x + y;
+}
+
+enum a {"a" "b"} 0
+
+struct b {
+	x int,
+	y int,
+}
