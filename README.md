@@ -2,7 +2,7 @@
 a quick and bad prototype of the magenta programming language's basic functionality before i move on to implement everything properly
 
 ## about javascript...
-yes, the **prototype** is written in javascript, it is because it is the language i am most comfortable in. I have never finished a proper programmnig language before, *once i get the basic concepts banged out* i **will** move onto a **real language** to implement magenta in
+yes, the **prototype** is written in javascript, it is because it is the language i am most comfortable in. *once* i get the basic concepts banged out *i will move language immediately*. since the plan is to write a compiler to c, i will most likely just finish up the prototype until it is able to do such, and then **rewrite the language in itself**
 
 # language design
 inspired by the bourne shell, f#, typescript, and go. it is strongly typed, immutable where convenient, does not have null, and aims to keep code as short as possible whilst maintaining not being absolutely ridiculous
