@@ -1,4 +1,4 @@
 namespace main
 include tty
 
-tty.println("Hello, World!");
+tty.println(0, 0.0, 0.0.0)
