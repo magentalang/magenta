@@ -1,5 +1,5 @@
-# magenta (prototype branch)
-a quick and bad prototype of the magenta programming language's basic functionality before i move on to implement everything properly
+# magenta
+you may want to see [the website](https://magenta.zvava.org)
 
 ## about javascript...
 yes, the **prototype** is written in javascript, it is because it is the language i am most comfortable in. *once* i get the basic concepts banged out *i will move language immediately*. since the plan is to write a compiler to c, i will most likely just finish up the prototype until it is able to do such, and then **rewrite the language in itself**
