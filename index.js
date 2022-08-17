@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const fs = require("fs");
-const util = require("util");
+const { join } = require("path");
 const lex = require("./lib/lexer.js");
 const parse = require("./lib/parser.js");
 const info = require("./package.json");
@@ -27,18 +27,19 @@ switch (argv[0]) {
 
 	default: {
 		let targets = [];
-		let scanArg = (arg) => {
+		let scanArg = (parent, filename = "") => {
+			let arg = join(parent.toString(), filename.toString());
 			try {
 				let r = fs.lstatSync(arg);
 				if (r.isFile()) {
 					targets.push(arg);
-				} else if (r.isDirectory()) {
+				} else if (r.isDirectory() && filename != "node_modules" && (filename.charAt(0) != "." || filename.length == 1)) {
 					let d = fs.readdirSync(arg);
-					d.forEach(scanArg);
+					d.forEach((x) => scanArg(arg, x));
 				}
 			} catch (e) { return e; }
 		}
-		argv.forEach(scanArg);
+		argv.forEach((x) => scanArg(process.cwd(), x));
 		// remove duplicates
 		targets = targets.filter((x, i) => i == targets.indexOf(x)).filter(x => x.endsWith(".m"));
 
@@ -50,8 +51,8 @@ switch (argv[0]) {
 
 		// read all files
 		let readFiles = () => {
+			let x = 0;
 			targets.forEach((file, i) => {
-				let x = 0;
 				fs.readFile(file, "utf8", (err, data) => {
 					if (err) return console.error(err);
 
@@ -76,7 +77,7 @@ switch (argv[0]) {
 				// apply to file
 
 				if (i == files.length - 1) {
-						lexFiles();
+					lexFiles();
 				}
 			});
 		}
@@ -90,7 +91,7 @@ switch (argv[0]) {
 				console.log("lex →", file.tokens);
 
 				if (i == files.length - 1) {
-						parseAll();
+					parseAll();
 				}
 			});
 		}
