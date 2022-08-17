@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "The Magenta programming language project.",
   "main": "index.js",
-  "type": "module",
+  "bin": {
+    "magenta": "./index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/magentalang/magenta.git"
